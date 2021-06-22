@@ -1,0 +1,344 @@
+---
+title: "assignment"
+author: "Sagnik Chakravarty (me)"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Part 1: Simulation
+Here we will first simulate an exponential distribution in R with function rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. We will set lambda = 0.2 for all of the simulations. We will investigate the distribution of averages of 40 exponentials and will to do this for thousand simulations.
+
+## Showing sample mean and comparing it to the theoretical mean of the distribution
+Let's first show the sample mean and compare it to the theoretical mean.
+OUr theoretical mean here is 1/0.2= 5. 
+
+Let's create a function called mean_exp for handing the sample mean. 
+
+Our function mean_exp will first take argument no_sim, which stands for number of simulations. It will then simulate 40 exponentials with rate parameter 0.2, then find the mean (sample mean) of these 40 exponentials and store it in a dataframe called exp_df and repeat the same procedure as per the number of simulations entered by the user(value of no_sim). We will do 1000 simulations here so no_sim= 1000.
+
+Finally it will plot density curve of this distribution of sample means and we will compare the theoretical mean i.e. 5, by plotting the two x intercepts i.e. theoretical mean (which is 5 denoted by blue line) and actual sample mean (green line).
+
+```{r setup, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+
+#Let's create a function called mean_exp for handing the sample mean. 
+
+#Our function mean_exp will first take argument no_sim, which stands for number of simulations. It will then simulate 40 exponentials with rate parameter 0.2, then find the mean (sample mean) of these 40 exponentials and store it in a dataframe called exp_df and repeat the same procedure as per the number of simulations entered by the user(value of no_sim). We will do 1000 simulations here so no_sim= 1000.
+
+#Finally it will plot density curve of this distribution of sample means and we will compare the theoretical mean i.e. 5, by plotting the two x intercepts i.e. theoretical mean (which is 5 denoted by blue line) and actual sample mean (green line).
+
+mean_exp<- function(no_sim){
+  exp_df<- data.frame(x= c())
+  for(i in 1:no_sim){
+    
+    exp<- rexp(n = 40, rate = 0.2)
+    exp_mean<- mean(exp)
+    exp_df<- rbind.data.frame(exp_df, exp_mean)
+  }
+  names(exp_df)<- 'Avg_40_EXP'
+  x<- ggplot(exp_df, aes(Avg_40_EXP))+ geom_density(col='red')+ geom_vline(xintercept=c(1/0.2, mean(exp_df$Avg_40_EXP)), col=c('blue', 'green'))+ ggtitle(label = 'Comparing sample mean with the theoretical mean', subtitle = 'Theoretical mean is shown by the blue line and actual sample mean is shown by the green line')
+  
+  print(x)
+  theoretical_mean= 5
+  actual_mean= mean(exp_df$Avg_40_EXP)
+  print('The theoretical mean is:')
+  print(theoretical_mean)
+  print('The actual sample mean is:')
+  print(actual_mean)
+}
+mean_exp(1000)
+
+```
+
+**So as we can see from here, the blue line(theoretical mean) and the green line(actual sample mean) are very close to each other implying there is hardly any difference between the theoretical mean and the sample mean.**
+
+
+
+
+## Showing sample variance and comparing it to the theoretical variance of the distribution
+Now we will show the sample variance and compare it to the theoretical variance.
+OUr theoretical variance here is (1/0.2)^2= 25. 
+
+Let's create a function called var_exp for handing the sample variance 
+
+Our function var_exp will first take argument no_sim, which stands for number of simulations. It will then simulate 40 exponentials with rate parameter 0.2, then find the variance (sample variance) of these 40 exponentials and store it in a dataframe called exp_df_var and repeat the same procedure as per the number of simulations entered by the user(value of no_sim). We will do 1000 simulations here so no_sim= 1000.
+
+Finally it will plot density curve of this distribution of sample variances and we will compare the theoretical variance i.e. 25, by plotting the two x intercepts i.e. theoretical variance (which is 25 denoted by blue line) and actual sample variance (green line).
+
+```{r echo=TRUE}
+
+#Let's create a function called var_exp for handing the sample variance 
+#Our function var_exp will first take argument no_sim, which stands for number of simulations. It will then simulate 40 exponentials with rate parameter 0.2, then find the variance (sample variance) of these 40 exponentials and store it in a dataframe called exp_df_var and repeat the same procedure as per the number of simulations entered by the user(value of no_sim). We will do 1000 simulations here so no_sim= 1000.
+
+#Finally it will plot density curve of this distribution of sample variances and we will compare the theoretical variance i.e. 25, by plotting the two x intercepts i.e. theoretical variance (which is 25 denoted by blue line) and actual sample variance (green line).
+
+var_exp<- function(no_sim){
+  exp_df_var<- data.frame(x=c())
+  
+  for(i in 1:no_sim){
+    exp<- rexp(n = 40, rate = 0.2)
+    exp_var<- (sd(exp))^2
+    exp_df_var<- rbind.data.frame(exp_df_var, exp_var)
+  }
+  
+  names(exp_df_var)<- 'Var_40_Exp'
+  y<-ggplot(exp_df_var, aes(Var_40_Exp))+ geom_density(col='red')+ geom_vline(xintercept=c((1/0.2)^2,  mean(exp_df_var$Var_40_Exp)), col= c('blue', 'green'))+ ggtitle(label = 'Comparing sample variance with the theoretical variance', subtitle = 'Theoretical var. is shown by the blue line and actual sample var. is shown by the green line' )
+  
+  print(y)
+  
+  theoretical_variance<- (1/0.2)^2
+  actual_sample_variance<- mean(exp_df_var$Var_40_Exp)
+  print('The theoretical variance is:')
+  print(theoretical_variance)
+  print('The actual sample variance is:')
+  print(actual_sample_variance)
+  
+}
+var_exp(1000)
+```
+
+**So as we can see the blue line(theoretical variance) and the green line(sample variance) are very close to each other implying there is very slight difference between the theoretical variance and the sample variance ** 
+
+## Showing that the distribution of the sample means is approximately normal using Central Limit Theorem
+
+The central limit theorem tells us that if we have a population with mean mu and variance sigma, as the sample size increases the distributiion of sample means becomes approximately normal.
+
+So inorder to prove that our sample mean distribution here is approximately normal, we will increase the sample size and see if its density plot becomes more and more Gausian or not.
+
+**We will create a new function mean_exp2 for this exercise. Ir will be very similar to our previous mean_exp function but this time we will make sample size n an argument as well.**
+
+**We will do 1000 simulations and increase the sample size n from 40 to 60 to 80 and then to 100. We will observe how the density curve becomes more and more Gausian**
+
+```{r echo=TRUE}
+
+#We will create a new function mean_exp2 for this exercise. Ir will be very similar to our previous mean_exp function but this time we will make sample size n an argument as well
+#We will do 1000 simulations and increase the sample size n from 40 to 60 to 80 and then to 100. We will observe how the density curve becomes more and more Gausian
+
+mean_exp2<- function(no_sim, n){
+  exp_df<- data.frame(x= c())
+  for(i in 1:no_sim){
+    
+    exp<- rexp(n, rate = 0.2)
+    exp_mean<- mean(exp)
+    exp_df<- rbind.data.frame(exp_df, exp_mean)
+  }
+  names(exp_df)<- 'Avg_40_EXP'
+  x<- ggplot(exp_df, aes(Avg_40_EXP))+ geom_density(col='red')+ geom_vline(xintercept=c(1/0.2, mean(exp_df$Avg_40_EXP)), col=c('blue', 'green'))+ ggtitle(label = 'Plotting the density curve', subtitle = 'Theoretical mean is shown by the blue line and actual sample mean is shown by the green line')
+  
+  print(x)
+  theoretical_mean= 5
+  actual_mean= mean(exp_df$Avg_40_EXP)
+  print('The theoretical mean is:')
+  print(theoretical_mean)
+  print('The actual sample mean is:')
+  print(actual_mean)
+}
+
+```
+
+**Let's first do 1000 simulations for sample size 40**
+```{r echo=TRUE}
+mean_exp2(1000, 40)
+
+```
+
+**Now let's do 1000 simulations for sample size 60**
+```{r echo=TRUE}
+mean_exp2(1000, 60)
+```
+
+**Now let's do 1000 simulations for sample size 80**
+
+```{r echo=TRUE}
+mean_exp2(1000, 80)
+```
+
+**Now let's do 1000 simulations for sample size 100**
+```{r echo=TRUE}
+mean_exp2(1000, 100)
+```
+
+**So as we observe from the above 4 plots/simulations, the density curve becomes more and more Gausian as we increase the sample size 40 to 60 to 80 to 100.
+So the Central Limit Theorem is validated and our sample mean distribution is approximately normal**
+
+# Part 2: Data Analysis of toothgrowth data
+
+Here in this part, we are going to do some analysis on the ToothGrowth data in the R datasets package.
+
+We will first load the ToothGrowth dataset into R and then do some exploratory analysis to get a good sense of the data. After that, we will run some appropriate tests to make some inferences about the data.
+
+## Exploratory analysis
+
+Let's first load the dataset into R and do some exploratory analysis.
+
+```{r echo=TRUE}
+library(datasets) #loading the ToothGrowth datset
+dataset<- ToothGrowth
+head(dataset)
+summary(dataset)
+#separating the dataset by the supp (supplement) variable i.e. VC (Ascorbic acid) and OJ (Orange juice)
+dataset_VC<- subset(dataset, supp=='VC') 
+dataset_OJ<- subset(dataset, supp=='OJ')
+
+library(ggplot2)
+```
+
+Comparing the toothgrowth i.e. len variable across the 3 doses for animals who were given ascorbic acid
+```{r echo=TRUE}
+qplot(len, data = dataset_VC, facets = .~dose, xlab = 'length', fill= 'red')+ theme_dark()+ggtitle('Supplement given: ascorbic acid (VC)', subtitle = 'Comparing between the 3 doses') 
+```
+
+
+comparing the toothgrowth i.e. len variable across the 3 doses for animals who were given orange juice
+```{r echo=TRUE}
+
+qplot(len, data = dataset_OJ, facets = .~dose, xlab = 'length', fill= 'red')+ theme_dark()+ggtitle('Supplement given: Orange juice (OJ)', subtitle = 'Comparing between the 3 doses') 
+
+```
+
+Comparing toothgrowth between animals who were given Orange juice and those who were given ascorbic acid for dose 0.5 mg/day
+
+```{r echo=TRUE}
+#dose of 0.5 mg/day
+par(mfrow=c(1,2))
+hist(dataset_OJ[dataset_OJ$dose==0.5,]$len, xlim = c(4,24), ylim = c(0, 6), main = 'Orange Juice with 0.5 dose', xlab = 'Length', col= 'red')
+hist(dataset_VC[dataset_VC$dose==0.5,]$len, xlim = c(4,24), ylim = c(0, 6), main = 'ascorbic acid with 0.5 dose', xlab = 'Length', col='red')
+#comparing the means
+mean(dataset_OJ[dataset_OJ$dose==0.5,]$len) #Orange juice
+mean(dataset_VC[dataset_VC$dose==0.5,]$len) #Ascorbic acid
+
+```
+
+
+Comparing toothgrowth between animals who were given Orange juice and those who were given ascorbic acid for dose 1.0 mg/day
+```{r echo=TRUE}
+#dose of 1.0 mg/day
+par(mfrow=c(1,2))
+hist(dataset_OJ[dataset_OJ$dose==1.0,]$len, xlim = c(10,28), ylim = c(0, 6), main = 'Orange Juice with 1.0 dose', xlab = 'Length', col= 'red')
+hist(dataset_VC[dataset_VC$dose==1.0,]$len, xlim = c(10,28), ylim = c(0, 6), main = 'ascorbic acid with 1.0 dose', xlab = 'Length', col='red')
+#Comparing means
+mean(dataset_OJ[dataset_OJ$dose==1.0,]$len) #Orange juice
+mean(dataset_VC[dataset_VC$dose==1.0,]$len) #Ascorbic acid
+```
+
+Comparing toothgrowth between animals who were given Orange juice and those who were given ascorbic acid for dose 2.0 mg/day
+```{r echo=TRUE}
+#dose of 2.0 mg/day
+par(mfrow=c(1,2))
+hist(dataset_OJ[dataset_OJ$dose==2.0,]$len, xlim = c(15,35), ylim = c(0, 6), main = 'Orange Juice with 2.0 dose', xlab = 'Length', col= 'red')
+hist(dataset_VC[dataset_VC$dose==2.0,]$len, xlim = c(15,35), ylim = c(0, 6), main = 'ascorbic acid with 2.0 dose', xlab = 'Length', col='red')
+#Comparing means
+mean(dataset_OJ[dataset_OJ$dose==2.0,]$len) #Orange juice
+mean(dataset_VC[dataset_VC$dose==2.0,]$len) #Ascorbic acid
+```
+
+Comparing mean tooth growth for animals who were given orange juice across the 3 doses: 0.5 mg/day, 1.0 mg/day and 2.0 mg/day
+```{r echo=TRUE}
+par(mfrow= c(1,1), mar=c(5.1, 4.1, 4.1, 2.1))
+OJ_mean_0.5<- mean(dataset_OJ[dataset_OJ$dose==0.5,]$len) #calculating mean toothgrowth for dose 0.5 mg/day
+OJ_mean_1.0<- mean(dataset_OJ[dataset_OJ$dose==1.0,]$len) #calculating mean toothgrowth for dose 1.0 mg/day
+OJ_mean_2.0<- mean(dataset_OJ[dataset_OJ$dose==2.0,]$len) #calculating mean toothgrowth for dose 2.0 mg/day
+barplot(height = c(OJ_mean_0.5, OJ_mean_1.0, OJ_mean_2.0), names.arg = c('0.5 mg/day', '1.0 mg/day', '2.0 mg/day'), col = c(OJ_mean_0.5, OJ_mean_1.0, OJ_mean_2.0), xlab = 'doses', ylab = 'mean', main = 'Mean tooth growth length by orange juice for the three doses ')
+
+```
+
+Comparing mean tooth growth for animals who were given ascorbic acid across the 3 doses: 0.5 mg/day, 1.0 mg/day and 2.0 mg/day
+```{r echo=TRUE}
+VC_mean_0.5<- mean(dataset_VC[dataset_VC$dose==0.5,]$len) #calculating mean toothgrowth for dose 0.5 mg/day
+VC_mean_1.0<- mean(dataset_VC[dataset_VC$dose==1.0,]$len) #calculating mean toothgrowth for dose 1.0 mg/day
+VC_mean_2.0<- mean(dataset_VC[dataset_VC$dose==2.0,]$len) #calculating mean toothgrowth for dose 2.0 mg/day
+
+par(mfrow= c(1,1), mar=c(5.1, 4.1, 4.1, 2.1))
+barplot(height = c(VC_mean_0.5, VC_mean_1.0, VC_mean_2.0), names.arg = c('0.5 mg/day', '1.0 mg/day', '2.0 mg/day'), col = c(VC_mean_0.5, VC_mean_1.0, VC_mean_2.0), xlab = 'doses', ylab = 'mean', main = 'Mean tooth growth length by ascorbic acid for the three doses ')
+
+
+```
+
+**So we can see from these above analysis clearly that for both cases of orange juice and ascorbic acid, the toothgrowth seems to increase as we increase the doses for each of them. Now lets conduct some tests to validate this observation**
+
+## Conducting tests
+
+As we saw from the above exploratory analysis, it appears that for both orange juice and ascorbic acid the toothgrowth seems to increase if we increase the doses given to the animals.
+
+So let's test this observation by conducting tests in R. 
+
+### Tests for the animals who were given Orange juice (OJ).
+ 
+#### dose 1.0 mg/day vs 0.5 mg/day (orange juice)
+
+**Null hypothesis**: Our null hypothesis will be that the true mean toothgrowth or population mean toothgrowth for animals given the dose 1.0 mg/day of orange juice is equal to that of the animals given 0.5 mg/day of orange juice. 
+In other words, the difference between the true means for dose 1.0 mg/day orange juice and dose 0.5 mg/day orange juice is 0
+
+**Altenative hypothesis**: Our alternative hypothesis is that the true mean toothgrowth for animals who were given the dose 1.0 mg/day of orange juice, is greater than that of the animals who were given 0.5 mg/day of orange juice.
+In other words, the difference between the true means for dose 1.0 mg/day orange juice and dose 0.5 mg/day orange juice is greater than 0.
+
+So we are conducting a greater than test. Our alpha level is 5 % or alpha= 0.05
+
+```{r echo=TRUE}
+t.test(dataset_OJ[dataset_OJ$dose==1.0,]$len, dataset_OJ[dataset_OJ$dose==0.5,]$len, paired = FALSE, alternative = 'greater')
+
+```
+**Result of test: so we reject null hypo and accept alternative hypo as the p value is lower than our alpha= 0.05. SO the true mean toothgrowth for animals who were given 1.0 mg/day dose of orange juice is greater than that of animals who were given dose of 0.5 mg/day of orange juice**
+
+
+#### dose 2.0 mg/day vs 1.0 mg/day (orange juice)
+
+**Null hypothesis**: Our null hypothesis will be that the true mean toothgrowth or population mean toothgrowth for animals given the dose 2.0 mg/day of orange juice is equal to that of the animals given 1.0 mg/day of orange juice. 
+In other words, the difference between the true means for dose 2.0 mg/day orange juice and dose 1.0 mg/day orange juice is 0
+
+**Altenative hypothesis**: Our alternative hypothesis is that the true mean toothgrowth for animals who were given the dose 2.0 mg/day of orange juice, is greater than that of the animals who were given 1.0 mg/day of orange juice.
+In other words, the difference between the true means for dose 2.0 mg/day orange juice and dose 1.0 mg/day orange juice is greater than 0.
+
+So we are conducting a greater than test. Our alpha level is 5 % or alpha= 0.05
+
+```{r echo=TRUE}
+t.test(dataset_OJ[dataset_OJ$dose==2.0,]$len, dataset_OJ[dataset_OJ$dose==1.0,]$len, paired = FALSE, alternative = 'greater')
+```
+**Result of test: so we reject null hypo and accept alternative hypo as the p value is lower than our alpha= 0.05. SO the true mean toothgrowth for animals who were given 2.0 mg/day dose of orange juice is greater than that of animals who were given dose of 1.0 mg/day of orange juice**
+
+
+### Tests for the animals who were given Ascorbic acid (VC).
+
+#### dose 1.0 mg/day vs 0.5 mg/day (Ascorbic acid)
+
+**Null hypothesis**: Our null hypothesis will be that the true mean toothgrowth or population mean toothgrowth for animals given the dose 1.0 mg/day of Ascorbic acid is equal to that of the animals given 0.5 mg/day of ascorbic acid. 
+In other words, the difference between the true means for dose 1.0 mg/day Ascorbic acid and dose 0.5 mg/day Ascorbic acid is 0
+
+**Altenative hypothesis**: Our alternative hypothesis is that the true mean toothgrowth for animals who were given the dose 1.0 mg/day of Ascorbic acid, is greater than that of the animals who were given 0.5 mg/day of Ascorbic acid.
+In other words, the difference between the true means for dose 1.0 mg/day Ascorbic acid and dose 0.5 mg/day Ascorbic acid is greater than 0.
+
+So we are conducting a greater than test. Our alpha level is 5 % or alpha= 0.05
+
+
+```{r echo=TRUE}
+t.test(dataset_VC[dataset_VC$dose==1.0,]$len, dataset_VC[dataset_VC$dose==0.5,]$len, paired = FALSE, alternative = 'greater') 
+```
+**Result of test: so we reject null hypo and accept alternative hypo as the p value is lower than our alpha= 0.05. SO the true mean toothgrowth for animals who were given 1.0 mg/day dose of Ascorbic acid is greater than that of animals who were given dose of 0.5 mg/day of Ascorbic acid**
+
+#### dose 2.0 mg/day vs 1.0 mg/day (Ascorbic acid)
+
+**Null hypothesis**: Our null hypothesis will be that the true mean toothgrowth or population mean toothgrowth for animals given the dose 2.0 mg/day of Ascorbic acid is equal to that of the animals given 1.0 mg/day of ascorbic acid. 
+In other words, the difference between the true means for dose 2.0 mg/day Ascorbic acid and dose 1.0 mg/day Ascorbic acid is 0
+
+**Altenative hypothesis**: Our alternative hypothesis is that the true mean toothgrowth for animals who were given the dose 2.0 mg/day of Ascorbic acid, is greater than that of the animals who were given 1.0 mg/day of Ascorbic acid.
+In other words, the difference between the true means for dose 2.0 mg/day Ascorbic acid and dose 1.0 mg/day Ascorbic acid is greater than 0.
+
+So we are conducting a greater than test. Our alpha level is 5 % or alpha= 0.05
+
+```{r echo=TRUE}
+t.test(dataset_VC[dataset_VC$dose==2.0,]$len, dataset_VC[dataset_VC$dose==1.0,]$len, paired = FALSE, alternative = 'greater') 
+
+```
+**Result of test: so we reject null hypo and accept alternative hypo as the p value is lower than our alpha= 0.05. SO the true mean toothgrowth for animals who were given 2.0 mg/day dose of Ascorbic acid is greater than that of animals who were given dose of 1.0 mg/day of Ascorbic acid**
+
+## Conclusion:
+
+So as observed from the exploratory analysis and validated with our tests, we can conclude that for both cases of orange juice and ascorbic acid, the toothgrowth increases as we increase the doses for each of the 2 supplements.
+
+**Assumptions used**:
+1. we assumed the distributions were not paired
+2. we assumed alpha level to be 5% or 0.05
+3.We used greater than test as per our assumption that mean or average toothgrowth for a group of animals given a higher dose of either of the 2 supplements: ascorbic acid or orange juice, is greater than that of a group given a lower dose of the same supplement. We formed this assumption based on our observations from our exploratory graphs and analysis. 
